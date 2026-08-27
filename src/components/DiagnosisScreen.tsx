@@ -35,6 +35,7 @@ export const DiagnosisScreen: React.FC<DiagnosisScreenProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [targetFilter, setTargetFilter] = useState<string>('2024년 하반기 공기업 채용 기준');
+  const isFailureCandidate = user.overallScore < 40;
 
   const targetOptions = [
     '2024년 하반기 공기업 채용 기준',
@@ -197,12 +198,14 @@ export const DiagnosisScreen: React.FC<DiagnosisScreenProps> = ({
         <div className="relative z-10">
           <h2 className="text-[17px] font-bold tracking-tight">나의 위치</h2>
           <p className="text-xs text-[#ADC7F7] mt-1 font-normal">
-            상위권 지원자 그룹에 속해 있습니다.
+            {isFailureCandidate
+              ? '자격증과 어학 기준을 충족하지 않아 취업 경쟁력 기준에 미달합니다.'
+              : '상위권 지원자 그룹에 속해 있습니다.'}
           </p>
 
           <div className="mt-3.5 flex items-baseline gap-2">
             <span className="text-3xl font-extrabold tracking-tight text-white">
-              Top {user.rankPercentile}
+              {isFailureCandidate ? 'Top 100' : `Top ${user.rankPercentile}`}
             </span>
             <span className="text-lg font-bold text-[#86A0CD]">%</span>
           </div>
@@ -211,7 +214,7 @@ export const DiagnosisScreen: React.FC<DiagnosisScreenProps> = ({
           <div className="w-full bg-[#1A365D] rounded-full h-2 mt-3 overflow-hidden">
             <div
               className="bg-white h-full rounded-full transition-all duration-700 ease-out"
-              style={{ width: '85%' }}
+              style={{ width: isFailureCandidate ? '0%' : `${Math.max(18, 100 - user.rankPercentile)}%` }}
             ></div>
           </div>
         </div>

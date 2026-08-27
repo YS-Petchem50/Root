@@ -18,6 +18,9 @@ import { CompanyDetailModal } from './components/CompanyDetailModal';
 import { StudyGuideModal } from './components/StudyGuideModal';
 import { ProfileModal } from './components/ProfileModal';
 import { SideDrawer } from './components/SideDrawer';
+import { evaluateEmploymentReadiness } from './lib/employmentScore';
+
+const FAILURE_SCORE_THRESHOLD = 40;
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<TabType>('spec');
@@ -29,6 +32,10 @@ export default function App() {
       return initialUserProfile;
     }
   });
+
+  const displayUser = evaluateEmploymentReadiness(user);
+  const isEmploymentFailure = displayUser.overallScore < FAILURE_SCORE_THRESHOLD;
+  const [showFailureOverlay, setShowFailureOverlay] = useState(true);
 
   const [selectedCompany, setSelectedCompany] = useState<CompanyJob>(sampleCompanies[0]);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -50,13 +57,17 @@ export default function App() {
   // Save profile helper
   const handleSaveProfile = (updatedData: Partial<UserProfile>) => {
     setUser((prev) => {
-      const updated = { ...prev, ...updatedData };
+      const merged = { ...prev, ...updatedData };
+      const evaluated = evaluateEmploymentReadiness(merged);
+
       try {
-        localStorage.setItem('recruit_diagnosis_user', JSON.stringify(updated));
+        localStorage.setItem('recruit_diagnosis_user', JSON.stringify(evaluated));
       } catch (err) {
         console.error('Failed to save to local storage', err);
       }
-      return updated;
+
+      setShowFailureOverlay(true);
+      return evaluated;
     });
   };
 
@@ -74,10 +85,31 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F0F2F5] flex justify-center selection:bg-[#002045] selection:text-white">
       {/* Mobile container centered on screen */}
-      <div className="w-full max-w-md bg-[#FAF9FD] min-h-screen relative shadow-[0_0_40px_rgba(0,0,0,0.06)] border-x border-[#E2E8F0] flex flex-col">
+      <div className="w-full max-w-md bg-[#FAF9FD] min-h-screen relative shadow-[0_0_40px_rgba(0,0,0,0.06)] border-x border-[#E2E8F0] flex flex-col overflow-hidden">
+        {isEmploymentFailure && showFailureOverlay && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#0B1120]/98 backdrop-blur-[3px]">
+            <button
+              type="button"
+              onClick={() => setShowFailureOverlay(false)}
+              className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xl font-bold text-white backdrop-blur-sm transition hover:bg-white/20"
+              aria-label="실패 안내 닫기"
+            >
+              ×
+            </button>
+            <div className="px-6 text-center">
+              <div className="text-[180px] sm:text-[200px] leading-none font-black tracking-[-0.14em] text-[#ff3b3b] drop-shadow-[0_10px_30px_rgba(239,68,68,0.6)]">
+                실패
+              </div>
+              <div className="mt-8 text-[20px] font-bold text-[#fca5a5] tracking-[-0.02em]">
+                종합 점수 40점 미만으로 취업 경쟁력이 낮습니다.
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Top Sticky Header */}
         <Header
-          user={user}
+          user={displayUser}
           onOpenMenu={() => setIsDrawerOpen(true)}
           onOpenProfile={() => setIsProfileOpen(true)}
         />
@@ -86,7 +118,7 @@ export default function App() {
         <main className="flex-1 px-4 pt-3">
           {currentTab === 'spec' && (
             <MySpecScreen
-              user={user}
+              user={displayUser}
               onOpenWizard={handleOpenWizard}
               onNavigateToHome={() => setCurrentTab('home')}
               onSelectCompany={handleSelectCompanyFromCard}
@@ -96,7 +128,7 @@ export default function App() {
 
           {currentTab === 'diagnosis' && (
             <DiagnosisScreen
-              user={user}
+              user={displayUser}
               scoreComparisons={scoreComparisons}
               strategyRecommendations={strategyRecommendations}
               specDetails={specDetailItems}
@@ -107,7 +139,7 @@ export default function App() {
 
           {currentTab === 'home' && (
             <HomeScreen
-              user={user}
+              user={displayUser}
               companies={sampleCompanies}
               selectedCompany={selectedCompany}
               onSelectCompany={(comp) => {
@@ -121,7 +153,7 @@ export default function App() {
 
           {currentTab === 'more' && (
             <MoreScreen
-              user={user}
+              user={displayUser}
               onOpenProfile={() => setIsProfileOpen(true)}
               onOpenWizard={() => handleOpenWizard(1)}
             />
@@ -135,14 +167,14 @@ export default function App() {
         <SpecWizardModal
           isOpen={isWizardOpen}
           initialStep={wizardInitialStep}
-          user={user}
+          user={displayUser}
           onClose={() => setIsWizardOpen(false)}
           onSave={handleSaveProfile}
         />
 
         <CompanyDetailModal
           company={modalCompany}
-          user={user}
+          user={displayUser}
           onClose={() => {
             setIsDetailModalOpen(false);
             setModalCompany(null);
@@ -160,7 +192,7 @@ export default function App() {
 
         <ProfileModal
           isOpen={isProfileOpen}
-          user={user}
+          user={displayUser}
           onClose={() => setIsProfileOpen(false)}
           onOpenWizard={() => {
             setIsProfileOpen(false);
@@ -171,7 +203,7 @@ export default function App() {
         <SideDrawer
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
-          user={user}
+          user={displayUser}
           currentTab={currentTab}
           onSelectTab={(tab) => setCurrentTab(tab)}
           onOpenWizard={() => handleOpenWizard(1)}

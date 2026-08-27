@@ -164,14 +164,6 @@ export const SpecWizardModal: React.FC<SpecWizardModalProps> = ({
         ...user.languages.filter((l) => l.type !== examType),
       ];
 
-      // If Korean history 1급 was checked in step 4 or step 2, adjust overall score
-      const hasKoreanHistory = certificates.some(
-        (c) => c.name.includes('한국사') && c.active
-      ) || hasKoreanHistory1;
-
-      const newOverallScore = hasKoreanHistory ? 90 : 85;
-      const newPercentile = hasKoreanHistory ? 8 : 15;
-
       onSave({
         education: {
           degree,
@@ -184,9 +176,6 @@ export const SpecWizardModal: React.FC<SpecWizardModalProps> = ({
         languages: updatedLanguages,
         certificates: certificates,
         internshipMonths,
-        readinessPercentage: 95,
-        overallScore: newOverallScore,
-        rankPercentile: newPercentile,
       });
       onClose();
     }

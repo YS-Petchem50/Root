@@ -35,7 +35,13 @@ export const DiagnosisScreen: React.FC<DiagnosisScreenProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [targetFilter, setTargetFilter] = useState<string>('2024년 하반기 공기업 채용 기준');
-  const isFailureCandidate = user.overallScore < 40 || user.internshipMonths === 0;
+  const hasActiveCertificate = user.certificates.some((certificate) => certificate.active);
+  const hasLanguageScore = user.languages.some((language) =>
+    /toeic|teps|opic|tos/i.test(language.score)
+  );
+  const isFailureCandidate =
+    user.overallScore < 40 ||
+    (user.internshipMonths === 0 && (!hasActiveCertificate || !hasLanguageScore));
 
   const targetOptions = [
     '2024년 하반기 공기업 채용 기준',

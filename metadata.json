@@ -1,0 +1,6 @@
+{
+  "name": "리크루트 진단",
+  "description": "공기업 및 주요 기업 채용 기준 기반의 맞춤형 스펙 진단, 역량 분석 및 기업 매칭 서비스",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

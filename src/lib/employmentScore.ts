@@ -71,25 +71,33 @@ export const evaluateEmploymentReadiness = (candidate: UserProfile) => {
     };
   }
 
-  const languageWeight = Math.min(35, englishScore * 0.35);
-  const certificateWeight = Math.min(20, activeCertificates.length * 10);
-  const gpaWeight = (candidate.education.gpa / candidate.education.maxGpa) * 15;
-  const internshipWeight = Math.min(10, (candidate.internshipMonths / 12) * 10);
+  const languageWeight = Math.min(22, englishScore * 0.22);
+  const certificateWeight = Math.min(16, activeCertificates.length * 4.5);
+  const internshipWeight =
+    candidate.internshipMonths >= 12 ? 18 :
+    candidate.internshipMonths >= 6 ? 12 :
+    candidate.internshipMonths >= 3 ? 7 :
+    0;
+  const gpaWeight = Math.min(8, (candidate.education.gpa / candidate.education.maxGpa) * 8);
   const degreeWeight =
-    candidate.education.degree === '석사' ? 12 :
-    candidate.education.degree === '박사' ? 14 : 9;
-  const skillBonus = (hasKoreanHistory ? 6 : 0) + (hasComputerSkill ? 6 : 0);
-  const englishBonus = englishScore >= 80 ? 5 : 0;
+    candidate.education.degree === '석사' ? 8 :
+    candidate.education.degree === '박사' ? 10 : 6;
+  const skillBonus = (hasKoreanHistory ? 3 : 0) + (hasComputerSkill ? 3 : 0);
+  const experienceBonus = candidate.internshipMonths > 0 ? 3 : 0;
+  const marketAdjustment = englishScore >= 80 && activeCertificates.length >= 1 ? 3 : 0;
+
   const combinedScore =
     languageWeight +
     certificateWeight +
-    gpaWeight +
     internshipWeight +
+    gpaWeight +
     degreeWeight +
     skillBonus +
-    englishBonus;
+    experienceBonus +
+    marketAdjustment;
 
-  const readinessPercentage = Math.min(100, Math.round(combinedScore));
+  const suitabilityRate = Math.min(100, Math.max(0, Math.round(combinedScore)));
+  const readinessPercentage = suitabilityRate;
 
   return {
     ...candidate,

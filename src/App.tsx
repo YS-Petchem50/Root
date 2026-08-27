@@ -34,7 +34,8 @@ export default function App() {
   });
 
   const displayUser = evaluateEmploymentReadiness(user);
-  const isEmploymentFailure = displayUser.overallScore < FAILURE_SCORE_THRESHOLD;
+  const isEmploymentFailure =
+    displayUser.overallScore < FAILURE_SCORE_THRESHOLD || displayUser.internshipMonths === 0;
   const [showFailureOverlay, setShowFailureOverlay] = useState(true);
 
   const [selectedCompany, setSelectedCompany] = useState<CompanyJob>(sampleCompanies[0]);
@@ -101,7 +102,7 @@ export default function App() {
                 실패
               </div>
               <div className="mt-8 text-[20px] font-bold text-[#fca5a5] tracking-[-0.02em]">
-                종합 점수 40점 미만으로 취업 경쟁력이 낮습니다.
+                종합 점수 40점 미만이거나 인턴 경력이 없는 경우 취업 경쟁력이 낮습니다.
               </div>
             </div>
           </div>

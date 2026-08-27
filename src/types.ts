@@ -58,6 +58,7 @@ export interface CompanyJob {
   sectorLabel: string; // '에너지/발전', 'SOC/교통/국토', '금융/경제', '기술/정보통신', '보건/복지', '문화/관광', '환경/농림'
   institutionType: '시장형 공기업' | '준시장형 공기업' | '기금관리형 준정부기관' | '위탁집행형 준정부기관' | '기타공공기관';
   location: string; // '전남 나주', '강원 원주', '경남 진주', '경북 김천', '인천', '대전', '부산', '서울', '세종' 등
+  marketType?: '국내' | '해외';
   jobTitle: string; // '사무/경영기획', 'ICT/전산개발', '전기/설비기술', '토목/건축' 등
   matchingRate: number; // 0-100 계산
   matchingLevel: '매칭률 높음' | '매칭률 보통' | '매칭률 낮음';

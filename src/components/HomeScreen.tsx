@@ -37,6 +37,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [sortOrder, setSortOrder] = useState<'matching' | 'salary' | 'deadline' | 'name'>('matching');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
+  const featuredDomesticCompanies = useMemo(
+    () => companies.filter((company) => company.marketType !== '해외').slice(0, 5),
+    [companies]
+  );
+
+  const featuredGlobalCompanies = useMemo(
+    () => companies.filter((company) => company.marketType === '해외').slice(0, 5),
+    [companies]
+  );
+
   const categories = [
     '전체',
     '에너지',
@@ -92,6 +102,71 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <p className="text-xs text-[#64748B] mt-1">
           현재 등록된 스펙(어학 950점, 정보처리기사, 컴활1급, 한국사1급) 기준으로 주요 공기업 실시간 적합도를 분석합니다.
         </p>
+      </div>
+
+      {/* Featured Company Collections */}
+      <div className="space-y-4">
+        <div>
+          <div className="flex items-center justify-between mb-2 px-1">
+            <h2 className="text-base font-extrabold text-[#002045]">국내 대기업·공기업 추천</h2>
+            <span className="text-[11px] font-semibold text-[#64748B]">{featuredDomesticCompanies.length}개</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {featuredDomesticCompanies.map((company) => {
+              const isSelected = selectedCompany.id === company.id;
+              return (
+                <button
+                  key={company.id}
+                  onClick={() => onSelectCompany(company)}
+                  className={`rounded-xl border p-3 text-left transition-all ${
+                    isSelected
+                      ? 'border-[#002045] bg-[#EEF5FF] shadow-sm'
+                      : 'border-[#EDF2F7] bg-white hover:border-[#CBD5E1]'
+                  }`}
+                >
+                  <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border text-[11px] font-bold ${company.logoBg} ${company.logoColor}`}>
+                    {company.companyShort.slice(0, 3)}
+                  </div>
+                  <div className="mt-2">
+                    <div className="text-[11px] text-[#64748B]">{company.sectorLabel}</div>
+                    <div className="text-sm font-bold text-[#1A1C1E] truncate">{company.companyName}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2 px-1">
+            <h2 className="text-base font-extrabold text-[#002045]">해외 기업 추천</h2>
+            <span className="text-[11px] font-semibold text-[#64748B]">{featuredGlobalCompanies.length}개</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {featuredGlobalCompanies.map((company) => {
+              const isSelected = selectedCompany.id === company.id;
+              return (
+                <button
+                  key={company.id}
+                  onClick={() => onSelectCompany(company)}
+                  className={`rounded-xl border p-3 text-left transition-all ${
+                    isSelected
+                      ? 'border-[#002045] bg-[#EEF5FF] shadow-sm'
+                      : 'border-[#EDF2F7] bg-white hover:border-[#CBD5E1]'
+                  }`}
+                >
+                  <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border text-[11px] font-bold ${company.logoBg} ${company.logoColor}`}>
+                    {company.companyShort.slice(0, 3)}
+                  </div>
+                  <div className="mt-2">
+                    <div className="text-[11px] text-[#64748B]">{company.marketType || '해외'}</div>
+                    <div className="text-sm font-bold text-[#1A1C1E] truncate">{company.companyName}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Search Input Bar */}
